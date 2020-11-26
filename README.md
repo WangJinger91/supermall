@@ -1,4 +1,4 @@
-# supermall
+# testvuecli3
 
 ## Project setup
 ```
