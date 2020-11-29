@@ -6,3 +6,12 @@ export function getHomeMultidata(){
         timeout:5000
     })
 }
+export function getHomeGoods(type,page){
+    return request({
+        url:'/home/data',
+        params:{
+            type,
+            page
+        }
+    })
+}
