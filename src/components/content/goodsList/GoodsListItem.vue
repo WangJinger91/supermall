@@ -1,7 +1,7 @@
 <!--  -->
 <template>
-  <div class="goods-list-item">
-      <img :src="goodslistitem.show.img" >
+  <div class="goods-list-item" @click="itemClick">
+      <img :src="goodslistitem.show.img" @load="imageLoad" >
       <div class="goods-info">
           <p>{{goodslistitem.title}}</p>
           <span class="price">{{goodslistitem.price}}</span>
@@ -14,7 +14,6 @@
 export default {
   data() {
     return {
-    
      }
    },
    props:{
@@ -26,7 +25,18 @@ export default {
        }
    },
   methods:{
- 
+      imageLoad(){
+          this.$bus.$emit("itemImageLoad")
+      },
+      itemClick(){
+          //this.$router.push('/detail/'+this.goodslistitem.iid)
+          this.$router.push({
+              path:'/detail',
+              query:{
+                  id : this.goodslistitem.iid
+              }
+          })
+       }
    },
 }
 </script>

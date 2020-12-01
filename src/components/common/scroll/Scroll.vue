@@ -47,14 +47,20 @@ export default {
     this.scroll.on('pullingUp',()=>{
       this.$emit('pullUp')
      })
+
+     
    },
   methods:{
     //设置time默认值为300
     scrollTo(x,y,time=300){
-      this.scroll.scrollTo(x,y,time)
+      this.scroll&&this.scroll.scrollTo(x,y,time)
     },
     finishPullUp(){
-      this.scroll.finishPullUp()
+      this.scroll&&this.scroll.finishPullUp()
+    },
+    refresh(){
+      //防止srcoll未加载就被拿来用
+      this.scroll&&this.scroll.refresh();
     }
    },
 }

@@ -2,15 +2,17 @@
 <template>
   <div id='home'>
     <nav-bar class="home-bar"><div slot="center">购物街</div></nav-bar>
+    <tab-control class="tabcontrol" v-show="istop"
+                :titles="['流行','新款','精选']"
+                @TabClick="TabChange" ref="tabcontrol1"/>
     <scroll class="wrapper" ref="scroll" 
             :probe-type="3" @scroll='scrollClick' 
             :pullUpLoad="true" @pullUp='loadMore'>
-    <home-swiper :banners="banners"/>
+    <home-swiper :banners="banners" @imageLoading.once='gettop' />
     <recommend-view :recommends="recommends"/>
     <feature-view/>
-    <tab-control class="tab-control" 
-                :titles="['流行','新款','精选']"
-                @TabClick="TabChange"/>
+    <tab-control :titles="['流行','新款','精选']"
+                @TabClick="TabChange" ref="tabcontrol2"/>
     <goods-list :goodslist="showGoodsList"/>
     </scroll>
     <!--监听组件点击事件必须加上native-->
@@ -27,10 +29,11 @@ import FeatureView from './childComps/FeatureView'
 import NavBar from 'components/common/navbar/NavBar'
 import TabControl from 'components/content/tabControl/TabControl'
 import GoodsList from 'components/content/goodsList/GoodsList'
-import Scroll from 'components/common/scroll/Scroll.vue'
+import Scroll from 'components/common/scroll/Scroll'
 import BackTop from 'components/content/backTop/BackTop'
 
 import {getHomeMultidata,getHomeGoods} from 'network/home'
+import {debounce} from 'common/utils'
 
 export default {
   data() {
@@ -43,8 +46,11 @@ export default {
         'sell':{page:0,list:[]},
       },
       currentType : 'pop',
-      scroll : {},
-      isBackTopShow : false
+      isBackTopShow : false,
+      count:0,
+      istop:false,
+      offsetTop:0,
+      scrollY:0
     }
    },
   computed:{
@@ -62,13 +68,31 @@ export default {
       Scroll,
       BackTop
    },
-  created (){
+  created (){ 
       this.getHomeMultidata()
       this.getHomeGoods('pop')
       this.getHomeGoods('new')
       this.getHomeGoods('sell')
    },
+  /*解决路由切换页面位置保持的问题，但最新的better-scroll优化了这个问题，就不需要这部分了
+  activated(){
+    this.$refs.scroll.scrollTo(0,this.scrollY,0)
+    this.$refs.scroll.refresh()
+  },
+  deactivated(){
+    this.scrollY=this.$refs.scroll.scroll.y
+    console.log(this.scrolly)
+  },*/
+  mounted(){
+   
+    const refresh=debounce(this.$refs.scroll.refresh,200)
+      this.$bus.$on("itemImageLoad",()=>{
+        refresh()
+     })
+
+   },
   methods:{
+
     //网络请求方法
     getHomeMultidata(){
       getHomeMultidata().then(res=>{
@@ -85,7 +109,7 @@ export default {
         this.goods[type].page+=1
         
         this.$refs.scroll.finishPullUp()
-        this.$refs.scroll.scroll.refresh()
+        
       })
     },
 
@@ -103,18 +127,24 @@ export default {
           break;
         default:
           break;
-
      }
+     
+      this.$refs.tabcontrol1.currentIndex=value    
+      this.$refs.tabcontrol2.currentIndex=value
     },
     backClick(){
       this.$refs.scroll.scrollTo(0,0)
     },
     scrollClick(position){
       this.isBackTopShow=(-position.y) >1000
+      this.istop = (-position.y) > this.offsetTop
     },
     loadMore(){
-        this.getHomeGoods(this.currentType);
-    
+      this.getHomeGoods(this.currentType);
+    },
+    gettop(){
+      this.offsetTop=this.$refs.tabcontrol2.$el.offsetTop
+
     }
   },
    
@@ -125,23 +155,23 @@ export default {
 <style scoped>
 #home{
   height: 100vh;
-  padding-top: 44px;
+  /* padding-top: 44px; */
   position: relative;
 }
 .home-bar{
   background-color: var(--color-tint);
   color: #ffffff;
 
-  position: fixed;
+  /* position: fixed;
   left: 0;
   right: 0;
   top: 0;
-  z-index: 9;
+  z-index: 9; */
 }
-.tab-control{
-   position: sticky;
-    top: 44px;
-    z-index: 9;
+.tabcontrol{
+  
+  position: relative;
+  z-index: 9;
 }
 .wrapper{
   overflow: hidden;
