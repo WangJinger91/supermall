@@ -41,12 +41,13 @@ export default {
      });
     this.scroll.on('scroll',(position)=>{
        this.$emit('scroll',position)
-      // console.log(position)
-     })
+      //  console.log(position)
+    })
     
     this.scroll.on('pullingUp',()=>{
       this.$emit('pullUp')
-     })
+      // console.log('上拉加载更多')
+    })
 
      
    },

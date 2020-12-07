@@ -1,7 +1,7 @@
 <!--  -->
 <template>
   <div class="goods-list-item" @click="itemClick">
-      <img :src="goodslistitem.show.img" @load="imageLoad" >
+      <img :src="showImg" @load="imageLoad" >
       <div class="goods-info">
           <p>{{goodslistitem.title}}</p>
           <span class="price">{{goodslistitem.price}}</span>
@@ -24,16 +24,26 @@ export default {
            }
        }
    },
+   computed:{
+       showImg(){
+           return  (this.goodslistitem.image ||this.goodslistitem.show.img   )
+       }
+   },
   methods:{
       imageLoad(){
-          this.$bus.$emit("itemImageLoad")
+          //有两种不同加载，避免不要加载，所以做出判断
+          if(this.$route.path.includes('/home')){
+            this.$bus.$emit("homeitemImageLoad")
+          }else if(this.$route.path.includes('/detail')){
+            this.$bus.$emit("detailitemImageLoad")
+          }
       },
       itemClick(){
           //this.$router.push('/detail/'+this.goodslistitem.iid)
           this.$router.push({
               path:'/detail',
               query:{
-                  id : this.goodslistitem.iid
+                  iid : this.goodslistitem.iid
               }
           })
        }

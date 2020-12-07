@@ -1,6 +1,7 @@
 <template>
 <div id='app'>
-  <keep-alive>
+  <!--exclude根据vue名字来找name-->
+  <keep-alive exclude="Detail">
   <router-view/>
   </keep-alive>
   <main-tab-bar/>

@@ -30,12 +30,13 @@ import NavBar from 'components/common/navbar/NavBar'
 import TabControl from 'components/content/tabControl/TabControl'
 import GoodsList from 'components/content/goodsList/GoodsList'
 import Scroll from 'components/common/scroll/Scroll'
-import BackTop from 'components/content/backTop/BackTop'
 
 import {getHomeMultidata,getHomeGoods} from 'network/home'
 import {debounce} from 'common/utils'
+import {getBackTopMix} from 'common/mixin'
 
 export default {
+  mixins: [getBackTopMix],
   data() {
     return {
       banners:[],
@@ -46,7 +47,6 @@ export default {
         'sell':{page:0,list:[]},
       },
       currentType : 'pop',
-      isBackTopShow : false,
       count:0,
       istop:false,
       offsetTop:0,
@@ -66,7 +66,6 @@ export default {
       TabControl,
       GoodsList,
       Scroll,
-      BackTop
    },
   created (){ 
       this.getHomeMultidata()
@@ -84,12 +83,10 @@ export default {
     console.log(this.scrolly)
   },*/
   mounted(){
-   
     const refresh=debounce(this.$refs.scroll.refresh,200)
-      this.$bus.$on("itemImageLoad",()=>{
+      this.$bus.$on("homeitemImageLoad",()=>{
         refresh()
      })
-
    },
   methods:{
 
@@ -132,9 +129,7 @@ export default {
       this.$refs.tabcontrol1.currentIndex=value    
       this.$refs.tabcontrol2.currentIndex=value
     },
-    backClick(){
-      this.$refs.scroll.scrollTo(0,0)
-    },
+   
     scrollClick(position){
       this.isBackTopShow=(-position.y) >1000
       this.istop = (-position.y) > this.offsetTop
@@ -144,7 +139,6 @@ export default {
     },
     gettop(){
       this.offsetTop=this.$refs.tabcontrol2.$el.offsetTop
-
     }
   },
    
