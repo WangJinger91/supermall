@@ -12,7 +12,8 @@
       <detail-recommend-info :recommend-list="recommendList" ref="recommendinfo"></detail-recommend-info>
     </scroll>
     <back-top @click.native="backClick" v-show="isBackTopShow"></back-top>
-    <detail-bottom-bar/>
+    <detail-bottom-bar @addCart="addToCart"/>
+    <!-- <toast :message="message" :isShow="isshow"/> -->
   </div>
   
 </template>
@@ -34,6 +35,7 @@ import Scroll from 'components/common/scroll/Scroll'
 import {getDetail,Goods,Shop,GoodsParam,getRecommend} from 'network/detail'
 import {debounce} from 'common/utils'
 import {getBackTopMix} from 'common/mixin'
+// import Toast from '../../components/common/toast/Toast.vue'
 
 
 export default {
@@ -52,6 +54,8 @@ export default {
       themeTopys:[],
       getTopY:null,
       currentIndex:0,
+      // isshow:false,
+      // message:''
      }
    },
   components:{
@@ -64,7 +68,8 @@ export default {
     DetailParamInfo,
     DetailCommentInfo,
     DetailRecommendInfo,
-    DetailBottomBar
+    DetailBottomBar,
+    // Toast
   },
   created(){
     this.getTopY=debounce(()=>{
@@ -144,6 +149,19 @@ export default {
         }
           
       }
+    },
+    addToCart(){
+      const product={}
+      product.image=this.images[0]
+      product.desc=this.goods.desc
+      product.title=this.goods.title
+      product.price=this.goods.newPrice
+      product.realPrice=this.goods.realPrice
+      product.iid=this.iid
+
+      this.$store.dispatch('addCart',product).then(res=>{
+        this.$toast.show(res,2000)
+      })
     }
   },
 
