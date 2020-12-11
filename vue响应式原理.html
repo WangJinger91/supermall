@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id ="app"> </div>
+    <script src="./node_modules/vue/dist/vue.js"></script>
+    <script >
+    const obj={
+        name:'名字',
+        message:'哈哈哈'
+    }        
+    Object.keys(obj).forEach(key=>{
+        let value=obj[key]
+        Object.defineProperty(obj,key,{
+            set(newVaule){
+                value=newVaule
+                console.log('监听'+key+'的改变')
+            },
+            get(){
+                console.log('访问'+key+'的值')
+                return value
+            }
+        })
+
+    })
+
+    //发布者订阅者模式
+
+    //发布者
+    class Dep{
+        constructor(){
+            this.subs=[]
+        }
+
+        watched(watcher){
+            this.subs.push(watcher)
+        }
+
+        notify(){
+            this.subs.forEach(item=>{
+                item.update()
+            })
+        }
+    }
+    //订阅者
+    class watcher{
+        constructor(name){
+            this.name=name
+        }
+        update(){
+            console.log(this.name+'update')
+        }
+    }
+
+    const dep=new Dep()
+
+    const za=new watcher('张三')
+    dep.watched(za)
+    
+    const ls=new watcher('李四')
+    dep.watched(ls)
+    
+    const ww=new watcher('王五')
+    dep.watched(ww)
+
+
+    dep.notify()
+     //创建Vue实例,得到 ViewModel
+     var vm = new Vue({
+        el: '#app',
+        data: {},
+        methods: {}
+     });
+    </script>
+</body>
+
+</html>
