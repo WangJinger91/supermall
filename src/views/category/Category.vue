@@ -1,128 +1,150 @@
 <!--  -->
 <template>
-  <div>
-    <nav-bar>
+  <div class="category">
+    <nav-bar class="category-bar">
       <div slot="center">分类</div>
     </nav-bar>
-  <div class="wrapper" ref="aaa">
-    <ul class="content">
-      <li>1</li>
-      <li>2</li>
-      <li>3</li>
-      <li>4</li>
-      <li>5</li>
-      <li>6</li>
-      <li>7</li>
-      <li>8</li>
-      <li>9</li>
-      <li>10</li>
-      <li>11</li>
-      <li>12</li>
-      <li>13</li>
-      <li>14</li>
-      <li>15</li>
-      <li>16</li>
-      <li>17</li>
-      <li>18</li>
-      <li>19</li>
-      <li>20</li>
-      <li>21</li>
-      <li>22</li>
-      <li>23</li>
-      <li>24</li>
-      <li>25</li>
-      <li>26</li>
-      <li>27</li>
-      <li>28</li>
-      <li>29</li>
-      <li>31</li>
-      <li>32</li>
-      <li>33</li>
-      <li>34</li>
-      <li>35</li>
-      <li>36</li>
-      <li>37</li>
-      <li>38</li>
-      <li>39</li>
-      <li>41</li>
-      <li>42</li>
-      <li>43</li>
-      <li>44</li>
-      <li>45</li>
-      <li>46</li>
-      <li>47</li>
-      <li>48</li>
-      <li>49</li>
-      <li>51</li>
-      <li>52</li>
-      <li>53</li>
-      <li>54</li>
-      <li>55</li>
-      <li>56</li>
-      <li>57</li>
-      <li>58</li>
-      <li>59</li>
-      <li>62</li>
-      <li>63</li>
-      <li>64</li>
-      <li>65</li>
-      <li>66</li>
-      <li>67</li>
-      <li>68</li>
-      <li>69</li>
-    </ul>
-  </div>
-  </div>
+    <div class="tab-content">
+      <tab-menu class="menu" :categories="categories" @menuClick="itemClick"></tab-menu>
+      <scroll :pullUpLoad="true" class="contents" >
+        <tab-content-category :subcategory="subcategory"></tab-content-category>
+        <tab-control :titles="['综合','新品','销量']"  @TabClick="TabChange"></tab-control>
+        <goods-list :goodslist="showGoodsList"/>
+      </scroll>
+    </div>
+    </div>
 </template>
 
 <script>
-import NavBar from 'components/common/navbar/NavBar.vue'
-import BScroll from 'better-scroll'
+import NavBar from 'components/common/navbar/NavBar'
+import Scroll from 'components/common/scroll/Scroll'
+import TabControl from 'components/content/tabControl/TabControl'
+import GoodsList from 'components/content/goodsList/GoodsList'
+
+import TabMenu from './childComps/TabMenu'
+import TabContentCategory from './childComps/TabContentCategory'
+
+import {getCategory,getSubcategory,getCategoryDetail} from 'network/category'
 
 export default {
   components: {  
-    NavBar
+    NavBar,
+    TabMenu,
+    Scroll,
+    TabContentCategory,
+    TabControl,
+    GoodsList
   },
-  data() {
+  data() 
+    {
     return {
-      scroll
+      categories:[],
+      currentIndex:0,
+      subcategory:[],
+      currentType:'pop',
+      goods:{
+        'pop':{page:0,list:[]},
+        'new':{page:0,list:[]},
+        'sell':{page:0,list:[]},
+      },
      }
    },
-  method:{
- 
+  computed:{
+    showGoodsList(){
+      return this.goods[this.currentType].list
+    }
+  },
+  mounted(){
+    this.getCategory()
+  },
+  methods:{
+    getCategory(){
+       getCategory().then(res=>{
+         console.log(res);
+         for(var item of res.data.category.list){
+          this.categories.push(item)
+         }
+         this.getSubcategory(0)
+       })
+    },
+    getSubcategory(index){
+      this.currentIndex=index;
+      const mailKey = this.categories[index].maitKey;
+      const miniWallkey=this.categories[index].miniWallkey;
+      var sublist=[]
+      getSubcategory(mailKey).then(res=>{
+        for(var item of res.data.list){
+           sublist.push(item)
+         }
+         this.subcategory=sublist
+         
+        this.getCategoryDetail(miniWallkey,'pop')
+        this.getCategoryDetail(miniWallkey,'new')
+        this.getCategoryDetail(miniWallkey,'sell')
+      })
+    },
+    getCategoryDetail(miniWallkey,type){
+        getCategoryDetail(miniWallkey, type).then(res=>{
+        const data=res
+        //数组赋值，表示将data数组中的各个数据一一加到list后面,...表示可变
+        const list=[]
+        list.push(data)
+        this.goods[type].list=[]
+        this.goods[type].list.push(...data)
+        this.goods[type].page+=1
+      })
+    },
+
+
+
+    itemClick(index){
+      this.currentIndex=index
+      this.getSubcategory(index)
+    },
+    TabChange(value){
+      switch(value){
+        case 0 :
+          this.currentType='pop';
+          break;
+        case 1 :
+          this.currentType='new';
+          break;
+        case 2 :
+          this.currentType='sell';
+          break;
+        default:
+          break;
+      }
+    }
+     
    },
-   mounted(){
-
-     //scroll默认不监听滚动
-     //probetype,0,1不侦测
-     //2，手指滑动时侦测，离开后不侦测
-     //3.只要滑动就侦测
-     this.scroll=
-     new BScroll(document.querySelector('.wrapper'),{
-       probeType: 3,
-      pullUpLoad:true
-
-     });
-     this.scroll.on('scroll',(position)=>{
-       //console.log(position)
-     })
-    
-      this.scroll.on('pullingUp',()=>{
-       console.log('上拉加载更多')
-       setTimeout(()=>{
-         this.scroll.finishPullUp()
-       },2000)
-     })
-   }
-}
-
+ 
+  }
 </script>
 
 
 <style scoped>
-.wrapper{
-  height: 150px;
-  background-color: red;
-  overflow: hidden;
+.category-bar{
+  background-color: var(--color-tint);
+  color: #ffffff;
+
+}
+.tab-content{   
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 44px;
+    bottom: 49px;
+    display: flex;
+}
+.menu{
+    flex: 1;
+}
+.contents{
+  height: 100%;
+  /* calc(100% - 93px); */
+  /* overflow: hidden; */
+  flex: 2.5;
 }
 </style>

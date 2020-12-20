@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import DetailNavBar from 'views/detail/childComps/DetailNavBar'
+import DetailNavBar from './childComps/DetailNavBar'
 import DetailSwiper from './childComps/DetailSwiper'
 import DetailBaseInfo from './childComps/DetailBaseInfo'
 import DetailShopInfo from './childComps/DetailShopInfo'

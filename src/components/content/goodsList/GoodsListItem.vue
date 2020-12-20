@@ -26,7 +26,7 @@ export default {
    },
    computed:{
        showImg(){
-           return  (this.goodslistitem.image ||this.goodslistitem.show.img   )
+           return  (this.goodslistitem.image ||this.goodslistitem.img ||this.goodslistitem.show.img  )
        }
    },
   methods:{
